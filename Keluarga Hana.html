@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabaran Membaca Explorace Hana</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Ubuntu', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden;
+
+            background:
+                linear-gradient(to bottom,
+                #87ceeb 0%,
+                #b3e5fc 40%,
+                #c8e6c9 100%);
+        }
+
+        /* UPDATE: Kedudukan container di hadapan elemen hiasan */
+        .game-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            border: 5px solid #fff;
+        }
+
+        /* TAMBAHAN: Gaya Hiasan Latar Belakang (Matahari, Awan & Ikon) */
+        /* Matahari */
+        .sun {
+            position: fixed;
+            top: 30px;
+            right: 50px;
+            width: 120px;
+            height: 120px;
+            background: #FFD54F;
+            border-radius: 50%;
+            box-shadow: 0 0 40px #FFD54F;
+            z-index: 0;
+        }
+
+        /* Awan */
+        .cloud {
+            position: fixed;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.9;
+            z-index: 0;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: "";
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .cloud1 {
+            width: 140px;
+            height: 50px;
+            top: 80px;
+            left: 50px;
+        }
+
+        .cloud1::before {
+            width: 60px;
+            height: 60px;
+            top: -25px;
+            left: 20px;
+        }
+
+        .cloud1::after {
+            width: 70px;
+            height: 70px;
+            top: -35px;
+            right: 20px;
+        }
+
+        .cloud2 {
+            width: 180px;
+            height: 60px;
+            top: 150px;
+            right: 200px;
+        }
+
+        .cloud2::before {
+            width: 70px;
+            height: 70px;
+            top: -30px;
+            left: 25px;
+        }
+
+        .cloud2::after {
+            width: 80px;
+            height: 80px;
+            top: -35px;
+            right: 25px;
+        }
+
+        /* Murid Kartun */
+        .students {
+            position: fixed;
+            bottom: 0;
+            left: 20px;
+            font-size: 90px;
+            z-index: 0;
+        }
+
+        /* Buku dan Pensel */
+        .school-icons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 70px;
+            z-index: 0;
+            animation: floatIcons 3s ease-in-out infinite;
+        }
+
+        @keyframes floatIcons {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Papan Skor Explorace */
+        .explorace-header {
+            background-color: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .level-indicator {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        /* Prompter Ayat Bergerak */
+        .prompter-box {
+            background-color: #222;
+            color: #00ffcc;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 2rem;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+
+        .marquee-text {
+            white-space: nowrap;
+            position: absolute;
+            animation: marquee linear infinite;
+        }
+
+        /* Animasi Marquee */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Kawalan Kelajuan */
+        .speed-control {
+            margin-bottom: 25px;
+        }
+        .speed-btn {
+            background-color: #e0e0e0;
+            border: none;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .speed-btn.active {
+            background-color: #00bcd4;
+            color: white;
+        }
+
+        /* Bahagian Audio / Recording */
+        .audio-section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px dashed #b2dfdb;
+        }
+
+        /* Butang Gaya Game */
+        .btn {
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-record { background-color: #ff5252; color: white; }
+        .btn-record.recording { background-color: #b71c1c; animation: pulse 1s infinite; }
+        .btn-play { background-color: #4caf50; color: white; }
+        .btn-nav { background-color: #2196f3; color: white; }
+        .btn-nav:disabled { background-color: #bdbdbd; cursor: not-allowed; }
+
+        /* Semakan Guru */
+        .teacher-section {
+            border-top: 3px solid #eee;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        .teacher-title {
+            font-size: 0.9rem;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .btn-star { background-color: #ffd700; color: #333; font-size: 1.2rem; }
+        .btn-wrong { background-color: #9e9e9e; color: white; font-size: 1.2rem; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Status Tanda Betul/Salah */
+        .status-banner {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 10px;
+            min-height: 25px;
+        }
+        .status-success { color: #2e7d32; }
+        .status-fail { color: #c62828; }
+    </style>
+</head>
+<body>
+
+<div class="sun"></div>
+
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+
+<div class="students">
+👦🏻👧🏻🎒
+</div>
+
+<div class="school-icons">
+📚 ✏️ 🏫
+</div>
+
+<div class="game-container">
+    <div class="explorace-header"> JOM UJI BACAAN ANDA! </div>
+    
+    <div class="level-indicator" id="levelIndicator">Check Point: 1 / 10</div>
+
+    <div class="prompter-box">
+        <div class="marquee-text" id="prompterText">Ini Hana.</div>
+    </div>
+
+    <div class="speed-control">
+        <span>Kelajuan Ayat: </span>
+        <button class="speed-btn" onclick="changeSpeed('slow', this)">Sederhana</button>
+        <button class="speed-btn active" onclick="changeSpeed('medium', this)">Laju</button>
+        <button class="speed-btn" onclick="changeSpeed('fast', this)">Sangat Laju</button>
+    </div>
+
+    <div class="audio-section">
+        <button class="btn btn-record" id="recordBtn" onclick="toggleRecording()">🔴 Rakam Suara</button>
+        <button class="btn btn-play" id="playBtn" onclick="playAudio()" disabled>🔊 Dengar Semula</button>
+        <p style="font-size: 0.85rem; color: #666; margin: 5px 0 0 0;">*Sila benarkan akses mikrofon pada browser.</p>
+    </div>
+
+    <div class="teacher-section">
+        <button class="btn btn-star" onclick="markAssessment(true)">⭐ Betul</button>
+        <button class="btn btn-wrong" onclick="markAssessment(false)">❌ Salah</button>
+        <div class="status-banner" id="statusBanner"></div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div>
+        <button class="btn btn-nav" id="prevBtn" onclick="navigate(-1)">⬅️ Kembali</button>
+        <button class="btn btn-nav" id="nextBtn" onclick="navigate(1)">Seterusnya ➡️</button>
+    </div>
+</div>
+
+<script>
+    const ayatList = [
+        "Ini Hana.",
+        "Adik Hana masih kecil.",
+        "Umurnya empat tahun.",
+        "Ibu dan ayah selalu menjaga adik.",
+        "Hana melihat mereka dari jauh.",
+        "Hana duduk diam di sudut bilik.",
+        "Hana berasa sedih.",
+        "Ayah selalu membaca buku cerita bersama adik.",
+        "Abang juga suka menyanyi dengan adik.",
+        "Kini Hana tahu keluarganya menyayanginya. Hana berasa gembira."
+    ];
+
+    let currentIndex = 0;
+    let currentSpeed = 'medium';
+    
+    const speedSettings = {
+        'slow': 15,
+        'medium': 10,
+        'fast': 5
+    };
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let audioBlob;
+    let audioUrl;
+    let isRecording = false;
+
+    updateGameScreen();
+
+    function updateGameScreen() {
+        const textElement = document.getElementById('prompterText');
+        textElement.innerText = ayatList[currentIndex];
+        
+        document.getElementById('levelIndicator').innerText = `Check Point Cabaran: ${currentIndex + 1} / ${ayatList.length}`;
+        document.getElementById('statusBanner').innerText = "";
+        document.getElementById('prevBtn').disabled = (currentIndex === 0);
+        
+        const nextBtn = document.getElementById('nextBtn');
+        if (currentIndex === ayatList.length - 1) {
+            nextBtn.innerText = "🎉 Tamat!";
+        } else {
+            nextBtn.innerText = "Seterusnya ➡️";
+        }
+
+        document.getElementById('playBtn').disabled = true;
+        audioUrl = null;
+
+        applySpeed();
+    }
+
+    function changeSpeed(speed, button) {
+        currentSpeed = speed;
+        const buttons = document.querySelectorAll('.speed-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        applySpeed();
+    }
+
+    function applySpeed() {
+        const textElement = document.getElementById('prompterText');
+        textElement.style.animation = 'none';
+        void textElement.offsetHeight; 
+        const duration = speedSettings[currentSpeed];
+        textElement.style.animation = `marquee ${duration}s linear infinite`;
+    }
+
+    function navigate(direction) {
+        currentIndex += direction;
+        if (currentIndex >= ayatList.length) {
+            alert("Syabas! Anda telah berjaya menamatkan semua cabaran membaca ini! 🏆");
+            currentIndex = 0; 
+        }
+        updateGameScreen();
+    }
+
+    async function toggleRecording() {
+        const recordBtn = document.getElementById('recordBtn');
+        
+        if (!isRecording) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    audioUrl = URL.createObjectURL(audioBlob);
+                    document.getElementById('playBtn').disabled = false;
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                recordBtn.innerText = "⏹️ Henti Rakaman";
+                recordBtn.classList.add('recording');
+            } catch (err) {
+                alert("Ralat mengakses mikrofon. Sila pastikan browser anda memberi kebenaran.");
+                console.error(err);
+            }
+        } else {
+            mediaRecorder.stop();
+            isRecording = false;
+            recordBtn.innerText = "🔴 Rakam Suara";
+            recordBtn.classList.remove('recording');
+        }
+    }
+
+    function playAudio() {
+        if (audioUrl) {
+            const audio = new Audio(audioUrl);
+            audio.play();
+        }
+    }
+
+    function markAssessment(isCorrect) {
+        const banner = document.getElementById('statusBanner');
+        if (isCorrect) {
+            banner.innerHTML = "<span class='status-success'>⭐ Bagus! Bacaan Betul. Anda bijak!</span>";
+        } else {
+            banner.innerHTML = "<span class='status-fail'>❌ Kurang Tepat. Jom cuba rakam dan baca sekali lagi.</span>";
+        }
+    }
+</script>
+
+</body>
+</html>
